@@ -2,12 +2,13 @@ import { Component } from 'react';
 import PropTypes from 'prop-types';
 import { toast } from 'react-toastify';
 
-import 'react-toastify/dist/ReactToastify.css';
 import { ImageGalleryItem } from 'components/ImageGalleryItem/ImageGalleryItem';
 import { Button } from 'components/Button/Button';
-import { Gallery } from './ImageGallery.styled';
-import api from 'services/api';
 import { Loader } from 'components/Loader/Loader';
+import api from 'services/api';
+
+import 'react-toastify/dist/ReactToastify.css';
+import { Gallery } from './ImageGallery.styled';
 
 export class ImageGallery extends Component {
   state = {

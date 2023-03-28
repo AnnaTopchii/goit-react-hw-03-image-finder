@@ -9,4 +9,6 @@ const fetchImages = ({ query = '', currentPage = 1 }) => {
   return axios.get(url).then(response => response.data);
 };
 
-export default { fetchImages };
+const api = { fetchImages };
+
+export default api;
