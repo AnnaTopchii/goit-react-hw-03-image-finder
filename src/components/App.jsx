@@ -93,7 +93,7 @@ export class App extends Component {
 
         {modalData && (
           <Modal onClose={this.toggleModal}>
-            <img src={modalData.largeImageURL} alt={modalData.alt} />
+            <img src={modalData.largeImageURL} alt={modalData.tags} />
           </Modal>
         )}
         <ToastContainer autoClose={3000} theme="colored" />
