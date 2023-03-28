@@ -3,31 +3,50 @@ import { ToastContainer } from 'react-toastify';
 
 import { Searchbar } from './Searchbar/Searchbar';
 import { ImageGallery } from './ImageGallery/ImageGallery';
-import { Button } from './Button/Button';
-import { Modal } from './Modal/Modal';
+import { Modal } from 'components/Modal/Modal';
 
 import { Container } from './App.styled';
 
 export class App extends Component {
   state = {
     query: '',
+    selectedImage: null,
+    alt: null,
+    showModal: false,
   };
 
   handleFormSubmit = query => {
     this.setState({ query });
   };
 
+  handleImageClick = (largeImageUrl, tags) => {
+    this.setState({
+      showModal: true,
+      selectedImage: largeImageUrl,
+      alt: tags,
+    });
+  };
+
+  toggleModal = () => {
+    this.setState(({ showModal }) => ({
+      showModal: !showModal,
+    }));
+  };
+
   render() {
+    const { query, showModal, selectedImage, alt } = this.state;
+
     return (
       <Container>
         <Searchbar onSubmit={this.handleFormSubmit} />
-        <ImageGallery query={this.state.query} />
-        <Button />
-        {/* <Modal /> */}
-        <ToastContainer />
+        <ImageGallery query={query} onImageClick={this.handleImageClick} />
+        {showModal && (
+          <Modal onClose={this.toggleModal}>
+            <img src={selectedImage} alt={alt} />
+          </Modal>
+        )}
+        <ToastContainer autoClose={3000} theme="colored" />
       </Container>
     );
   }
 }
-
-// https://github.com/luxplanjay/react-21-22/tree/06-http-%D0%B7%D0%B0%D0%BF%D1%80%D0%BE%D1%81%D1%8B/src/components

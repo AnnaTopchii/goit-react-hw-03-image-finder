@@ -1,6 +1,7 @@
 import { Component } from 'react';
 import PropTypes from 'prop-types';
-// import { toast } from 'react-toastify';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import {
   Header,
   SearchForm,
@@ -22,8 +23,7 @@ export class Searchbar extends Component {
     event.preventDefault();
 
     if (this.state.query.trim() === '') {
-      // toast.error('Enter any word to search images');
-      return;
+      return toast.warn('Enter any word to search images');
     }
 
     this.props.onSubmit(this.state.query);

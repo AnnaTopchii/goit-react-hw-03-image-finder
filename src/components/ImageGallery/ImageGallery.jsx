@@ -1,17 +1,19 @@
 import { Component } from 'react';
-import { ImageGalleryItem } from 'components/ImageGalleryItem/ImageGalleryItem';
-import { Gallery } from './ImageGallery.styled';
+import PropTypes from 'prop-types';
+import { toast } from 'react-toastify';
 
-const API_KEY = '33639596-28aa77ea2f93f41ef738293ad';
-const BASE_URL = 'https://pixabay.com/api/';
-const PARAM = 'image_type=photo&orientation=horizontal&per_page=12';
+import 'react-toastify/dist/ReactToastify.css';
+import { ImageGalleryItem } from 'components/ImageGalleryItem/ImageGalleryItem';
+import { Button } from 'components/Button/Button';
+import { Gallery } from './ImageGallery.styled';
+import api from 'services/api';
+import { Loader } from 'components/Loader/Loader';
 
 export class ImageGallery extends Component {
   state = {
     images: [],
-    error: null,
     status: 'idle',
-    page: 1,
+    currentPage: 1,
   };
 
   componentDidUpdate(prevProps, prevState) {
@@ -19,61 +21,112 @@ export class ImageGallery extends Component {
     const nextQuery = this.props.query;
 
     if (prevQuery !== nextQuery) {
-      this.setState({ status: 'pending' });
+      this.setState({ images: [], currentPage: 1 });
+      this.fetchImages();
+    }
 
-      fetch(
-        `${BASE_URL}?key=${API_KEY}&q=${nextQuery}&${PARAM}&page=${this.state.page}`
-      )
-        .then(response => {
-          if (response.ok) {
-            return response.json();
-          }
-          return Promise.reject(new Error(`No images ${nextQuery}`));
-        })
-        .then(response =>
-          this.setState({ images: response.hits, status: 'resolved' })
-        )
-        .catch(error => this.setState({ error, status: 'rejected' }));
+    if (this.state.currentPage > 1) {
+      console.log(this.state.currentPage); // тут одразу починає працювати з 1 сторіки. ставити з 2 стр не правильно
+      const CARD_HEIGHT = 300; // і воно перекидає не від поточного місця, я від верху сторінки
+      window.scrollTo({
+        top: CARD_HEIGHT * 2,
+        behavior: 'smooth',
+      });
     }
   }
 
-  // incrementPage() {
-  //   this.state.page += 1;
-  // }
+  fetchImages = () => {
+    const { currentPage } = this.state;
+    const { query } = this.props;
+    const options = { query, currentPage };
 
-  // resetPage() {
-  //   this.state.page = 1;
-  // }
+    this.setState({ status: 'pending' });
+
+    api
+      .fetchImages(options)
+      .then(images => {
+        if (images.totalHits === 0) {
+          this.setState({ status: 'idle' });
+          return toast.error(`Sorry, we didn't find any pictures of ${query}`);
+        }
+
+        this.setState(prevState => ({
+          images: [...prevState.images, ...images.hits],
+          status: 'resolved',
+          currentPage: prevState.currentPage + 1,
+        }));
+
+        if (currentPage > 1) {
+          console.log(currentPage); // why it does't work?
+          const CARD_HEIGHT = 300;
+          window.scrollTo({
+            top: CARD_HEIGHT * 2,
+            behavior: 'smooth',
+          });
+        }
+      })
+      .catch(error => {
+        toast.error(`Sorry something went wrong. ${error.message}`);
+        this.setState({ status: 'rejected' });
+      });
+  };
 
   render() {
-    const { images, error, status } = this.state;
-    console.log(images);
+    const { images, status } = this.state;
 
-    if (status === 'idle') {
-      return <div>Enter any word to search images</div>;
-    }
+    // if (status === 'idle') {
+    //   return <div>Починай шукати</div>;
+    // }
 
     if (status === 'pending') {
-      return <div>Spiner</div>;
+      return (
+        <>
+          {this.props.query && (
+            <Gallery>
+              {images.map(({ id, webformatURL, largeImageURL, tags }) => (
+                <ImageGalleryItem
+                  key={id}
+                  webImg={webformatURL}
+                  tags={tags}
+                  onImageClick={() =>
+                    this.props.onImageClick(largeImageURL, tags)
+                  }
+                />
+              ))}
+            </Gallery>
+          )}
+          <Loader />
+        </>
+      );
     }
 
-    if (status === 'rejected') {
-      return <div> {error.message} </div>;
-    }
+    // if (status === 'rejected') {
+    //   return <div>Все пропало</div>;
+    // }
 
     if (status === 'resolved') {
       return (
-        <Gallery>
-          {images.map(({ id, webformatURL, largeImageURL, tags }) => (
-            <ImageGalleryItem
-              key={id}
-              webImg={webformatURL}
-              largeImg={largeImageURL}
-              tags={tags}
-            />
-          ))}
-        </Gallery>
+        <>
+          <Gallery>
+            {images.map(({ id, webformatURL, largeImageURL, tags }) => (
+              <ImageGalleryItem
+                key={id}
+                webImg={webformatURL}
+                tags={tags}
+                onImageClick={() =>
+                  this.props.onImageClick(largeImageURL, tags)
+                }
+              />
+            ))}
+          </Gallery>
+          <Button onClick={this.fetchImages} />
+        </>
       );
     }
   }
 }
+
+ImageGallery.propTypes = {
+  query: PropTypes.string.isRequired,
+  onImageClick: PropTypes.func,
+};

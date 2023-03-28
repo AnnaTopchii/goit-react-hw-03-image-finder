@@ -1,9 +1,16 @@
+import PropTypes from 'prop-types';
 import { GalleryItem, GalleryItemImage } from './ImageGalleryItem.styled';
 
-export const ImageGalleryItem = ({ webImg, largeImg, tags }) => {
+export const ImageGalleryItem = ({ webImg, tags, onImageClick }) => {
   return (
-    <GalleryItem>
-      <GalleryItemImage src="{webImg}" alt="{tags}" />
+    <GalleryItem onClick={onImageClick}>
+      <GalleryItemImage src={webImg} alt={tags} />
     </GalleryItem>
   );
+};
+
+ImageGalleryItem.propTypes = {
+  webImg: PropTypes.string.isRequired,
+  tags: PropTypes.string.isRequired,
+  onImageClick: PropTypes.func.isRequired,
 };
