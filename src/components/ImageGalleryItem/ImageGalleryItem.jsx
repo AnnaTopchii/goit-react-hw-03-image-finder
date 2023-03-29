@@ -3,13 +3,17 @@ import React, { Component, createRef } from 'react';
 import { GalleryItem, GalleryItemImage } from './ImageGalleryItem.styled';
 
 export class ImageGalleryItem extends Component {
-  constructor(props) {
-    super(props);
-    this.imageRef = createRef();
-  }
+  imageRef = createRef();
 
   componentDidMount() {
-    this.imageRef.current.scrollIntoView({
+    if (!this.props.isAnchor) return;
+    const y =
+      this.imageRef.current.getBoundingClientRect().top +
+      window.pageYOffset -
+      80;
+
+    window.scrollTo({
+      top: y,
       behavior: 'smooth',
     });
   }
@@ -17,13 +21,15 @@ export class ImageGalleryItem extends Component {
   handleClick = () => {
     const { tags, onImageClick, largeImageURL } = this.props;
     onImageClick({ largeImageURL, tags });
-    this.imageRef.current.focus();
   };
 
   render() {
-    const { webImg, tags } = this.props;
+    const { webImg, tags, isAnchor } = this.props;
     return (
-      <GalleryItem onClick={this.handleClick} ref={this.imageRef}>
+      <GalleryItem
+        onClick={this.handleClick}
+        ref={isAnchor ? this.imageRef : null}
+      >
         <GalleryItemImage src={webImg} alt={tags} />
       </GalleryItem>
     );

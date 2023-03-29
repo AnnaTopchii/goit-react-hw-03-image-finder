@@ -8,13 +8,14 @@ import { Gallery } from './ImageGallery.styled';
 export const ImageGallery = ({ images, onImageClick }) => {
   return (
     <Gallery>
-      {images.map(({ id, webformatURL, largeImageURL, tags }) => (
+      {images.map(({ id, webformatURL, largeImageURL, tags, isAnchor }) => (
         <ImageGalleryItem
           key={id}
           webImg={webformatURL}
           tags={tags}
           largeImageURL={largeImageURL}
           onImageClick={onImageClick}
+          isAnchor={isAnchor}
         />
       ))}
     </Gallery>

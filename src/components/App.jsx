@@ -47,15 +47,15 @@ export class App extends Component {
 
     api
       .fetchImages(options)
-      .then(images => {
-        if (images.totalHits === 0) {
+      .then(({ images, totalImages }) => {
+        if (totalImages === 0) {
           this.setState({ status: 'idle' });
           return toast.error(`Sorry, we didn't find any pictures of ${query}`);
         }
 
         this.setState(prevState => ({
-          images: [...prevState.images, ...images.hits],
-          totalImages: images.totalHits,
+          images: [...prevState.images, ...images],
+          totalImages,
           status: 'resolved',
         }));
       })
